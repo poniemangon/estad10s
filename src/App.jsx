@@ -168,6 +168,10 @@ function formatEstadio(nombre, club) {
   return club ? `${nombre} (${club})` : nombre
 }
 
+function imageUrlFor(imagenes, tipo) {
+  return imagenes?.find((img) => img.tipo === tipo)?.url ?? null
+}
+
 function scoreEmoji(points) {
   if (points === 100) return '🎯'
   if (points >= 90) return '🔥'
@@ -228,7 +232,7 @@ function App() {
     async function load() {
       try {
         const [poolRows, provinciaRows] = await Promise.all([
-          fetchAllRows('estadios', 'nombre, club, lat, lng, provincia_id, image_url, dificultad', 'pool_index'),
+          fetchAllRows('estadios', 'nombre, club, lat, lng, provincia_id, dificultad, imagenes(tipo, url)', 'pool_index'),
           fetchAllRows('provincias', '*', 'provincia_id'),
         ])
         if (cancelled) return
@@ -335,16 +339,20 @@ function App() {
 
   const current = rounds[roundIndex]
   const totalScore = useMemo(() => results.reduce((s, r) => s + r.points, 0), [results])
+  const escudoUrl = imageUrlFor(current?.imagenes, 'escudo')
+  const estadioImageUrl = imageUrlFor(current?.imagenes, 'estadio')
+  const hasRoundImages = !!escudoUrl || !!estadioImageUrl
 
   const [imagePopupOpen, setImagePopupOpen] = useState(false)
 
   useEffect(() => {
-    if (current?.image_url) {
+    if (hasRoundImages) {
       setImagePopupOpen(true)
       const timer = setTimeout(() => setImagePopupOpen(false), 4000)
       return () => clearTimeout(timer)
     }
     setImagePopupOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current])
 
   const handlePick = useCallback(
@@ -646,7 +654,7 @@ function App() {
           <span className="score-label">Puntaje: {totalScore}</span>
         </div>
         <div className="dificultad-banner">
-          {DIFICULTAD_LABELS[current.dificultad] ?? current.dificultad}
+          Ronda {roundIndex + 1} - {DIFICULTAD_LABELS[current.dificultad] ?? current.dificultad}
           {isHardDificultad(current.dificultad) && <span className="hard-badge">×2</span>}
         </div>
         <div className="prompt">
@@ -657,7 +665,7 @@ function App() {
               (<strong>{current.club}</strong>)
             </>
           )}
-          {current.image_url && !imagePopupOpen && (
+          {hasRoundImages && !imagePopupOpen && (
             <button type="button" className="special-image-reopen" onClick={() => setImagePopupOpen(true)}>
               👁 Ver imagen
             </button>
@@ -665,13 +673,24 @@ function App() {
         </div>
       </header>
 
-      {current.image_url && imagePopupOpen && (
+      {hasRoundImages && imagePopupOpen && (
         <div className="modal-backdrop" onClick={() => setImagePopupOpen(false)}>
           <div className="special-image-modal" onClick={(e) => e.stopPropagation()}>
             <button type="button" className="calendar-close" onClick={() => setImagePopupOpen(false)}>
               ✕
             </button>
-            <img src={current.image_url} alt={current.nombre} />
+            {escudoUrl && (
+              <div className="round-image-block">
+                <span className="round-image-label">Escudo</span>
+                <img src={escudoUrl} alt={`Escudo de ${current.club ?? current.nombre}`} />
+              </div>
+            )}
+            {estadioImageUrl && (
+              <div className="round-image-block">
+                <span className="round-image-label">Estadio</span>
+                <img src={estadioImageUrl} alt={current.nombre} />
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -447,19 +447,40 @@
 
 .special-image-modal {
   position: relative;
-  max-width: min(90vw, 500px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  max-width: min(92vw, 700px);
   max-height: 85svh;
+  overflow-y: auto;
   border-radius: 14px;
   border: 1px solid var(--border, #333);
   background: var(--bg-elevated);
-  padding: 10px;
+  padding: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.round-image-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 200px;
+}
+
+.round-image-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
 }
 
 .special-image-modal img {
   display: block;
   max-width: 100%;
-  max-height: calc(85svh - 20px);
+  max-height: 40svh;
   min-height: 150px;
   min-width: 150px;
   border-radius: 8px;
