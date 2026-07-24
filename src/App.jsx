@@ -14,6 +14,12 @@ const ROUNDS_EASY = 2
 const ROUNDS_HARD = 3
 const HARD_SCORE_MULTIPLIER = 2
 const MAX_SCORE = ROUNDS_EASY * 100 + ROUNDS_HARD * 100 * HARD_SCORE_MULTIPLIER
+const DIFICULTAD_LABELS = {
+  muy_facil: 'Muy fácil',
+  facil: 'Fácil',
+  dificil: 'Difícil',
+  muy_dificil: 'Muy difícil',
+}
 const SHARE_DOMAIN = 'https://estad10s.com' // TODO: actualizar cuando esté deployado
 const DAY_MS = 24 * 60 * 60 * 1000
 const EPOCH_UTC = Date.UTC(2024, 0, 1)
@@ -635,12 +641,13 @@ function App() {
     <div className="app">
       <header className="hud">
         <div className="hud-row">
-          <span className="round-label">
-            Ronda {roundIndex + 1} / {TOTAL_ROUNDS}
-            {isHardDificultad(current.dificultad) && <span className="hard-badge">x2</span>}
-          </span>
+          <span className="round-label">Ronda {roundIndex + 1} / {TOTAL_ROUNDS}</span>
           {menu}
           <span className="score-label">Puntaje: {totalScore}</span>
+        </div>
+        <div className="dificultad-banner">
+          {DIFICULTAD_LABELS[current.dificultad] ?? current.dificultad}
+          {isHardDificultad(current.dificultad) && <span className="hard-badge">×2</span>}
         </div>
         <div className="prompt">
           Encontrá: <strong>{current.nombre}</strong>
