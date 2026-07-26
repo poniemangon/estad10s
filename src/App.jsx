@@ -51,10 +51,12 @@ function haversineMeters(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 
-// <=50m: 100 pts. Beyond 50m: -1 pt every 200m.
-function scoreForDistance(distanceMeters) {
+// <=50m: 100 pts. Beyond 50m: -1 pt every 200m (rondas fáciles) o cada 500m
+// (rondas difíciles/muy difíciles — más margen, además del x2 en el puntaje).
+function scoreForDistance(distanceMeters, hard) {
   if (distanceMeters <= 50) return 100
-  return Math.max(0, 100 - Math.floor((distanceMeters - 50) / 200))
+  const metersPerPoint = hard ? 500 : 200
+  return Math.max(0, 100 - Math.floor((distanceMeters - 50) / metersPerPoint))
 }
 
 function dayNumberForDate(date) {
@@ -361,7 +363,7 @@ function App() {
       const actual = [current.lat, current.lng]
       const distance = haversineMeters(pos, actual)
       const hard = isHardDificultad(current.dificultad)
-      const points = scoreForDistance(distance) * (hard ? HARD_SCORE_MULTIPLIER : 1)
+      const points = scoreForDistance(distance, hard) * (hard ? HARD_SCORE_MULTIPLIER : 1)
       setResults((prev) => [
         ...prev,
         { nombre: current.nombre, club: current.club, guess: pos, actual, distance, points, hard },
